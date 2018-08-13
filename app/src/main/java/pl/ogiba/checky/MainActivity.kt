@@ -4,16 +4,15 @@ package pl.ogiba.checky
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import pl.ogiba.checky.model.DailyRate
-import pl.ogiba.checky.network.ResponseListener
-import pl.ogiba.checky.network.TableService
-import pl.ogiba.checky.network.TableType
 import pl.ogiba.checky.viewmodels.HomeViewModel
 
-class MainActivity : android.support.v4.app.FragmentActivity() {
+class MainActivity : FragmentActivity(), IMainView {
 
     private lateinit var homeViewModel: HomeViewModel
+    private lateinit var presenter: IMainPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +21,8 @@ class MainActivity : android.support.v4.app.FragmentActivity() {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
         btnTest.setOnClickListener {
-            homeViewModel.testValue.value = "${homeViewModel.counter++}"
+//            homeViewModel.testValue.value = "${homeViewModel.counter++}"
+            presenter.loadData()
         }
 
         homeViewModel.dailyRates.observe(this, Observer {
@@ -33,16 +33,20 @@ class MainActivity : android.support.v4.app.FragmentActivity() {
             tvPlaceholder?.text = it
         })
 
-        val tableService = TableService().getLatest(TableType.A, object : ResponseListener<DailyRate, String> {
-            override fun onSuccess(statusCode: Int, item: DailyRate?) {
-                print(item)
-            }
+        presenter = MainPresenter()
+        presenter.subscribe(this)
+    }
 
-            override fun onError(statusCode: Int, error: String?, rawError: String?) {
-                print(error)
-                print(rawError)
-            }
-        })
+    override fun onDestroy() {
+        presenter.unsubscribe()
+        super.onDestroy()
+    }
 
+    override fun onSubscribe() {
+
+    }
+
+    override fun onDailyRateLoaded(dailyRate: DailyRate?) {
+        homeViewModel.testValue.value = dailyRate?.effectiveDate
     }
 }

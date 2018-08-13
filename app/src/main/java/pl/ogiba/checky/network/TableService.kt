@@ -7,22 +7,21 @@ import retrofit2.Response
 
 class TableService : BaseRestService<NbpApi>(NbpApi::class.java) {
 
-
-
     fun getLatest(table: TableType, responseListener: ResponseListener<DailyRate, String>) {
-        service.getLatest(table.value)
-                .enqueue(object : Callback<ArrayList<DailyRate>> {
-                    override fun onFailure(call: Call<ArrayList<DailyRate>>?, t: Throwable?) {
-                        responseListener.onError(-1, null, t?.message)
-                    }
+        val call = service.getLatest(table.value)
 
-                    override fun onResponse(call: Call<ArrayList<DailyRate>>?, response: Response<ArrayList<DailyRate>>?) {
-                        if (response != null) {
-                            when(response.code()) {
-                                200 -> responseListener.onSuccess(response.code(), response.body()?.get(0))
-                            }
-                        }
+        call.enqueue(object : Callback<ArrayList<DailyRate>> {
+            override fun onFailure(call: Call<ArrayList<DailyRate>>?, t: Throwable?) {
+                responseListener.onError(-1, null, t?.message)
+            }
+
+            override fun onResponse(call: Call<ArrayList<DailyRate>>?, response: Response<ArrayList<DailyRate>>?) {
+                if (response != null) {
+                    when (response.code()) {
+                        200 -> responseListener.onSuccess(response.code(), response.body()?.get(0))
                     }
-                })
+                }
+            }
+        })
     }
 }
