@@ -7,7 +7,7 @@ abstract class BaseRestService<T>(service: Class<T>) {
 
     protected val service: T
 
-    protected var apiHost: String = String()
+    private val apiHost = "https://api.nbp.pl/api/"
 
     init {
         val retrofit = Retrofit.Builder()
