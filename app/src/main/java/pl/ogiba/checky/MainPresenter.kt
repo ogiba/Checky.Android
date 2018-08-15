@@ -1,9 +1,11 @@
 package pl.ogiba.checky
 
+import android.support.v7.util.DiffUtil
 import pl.ogiba.checky.model.DailyRate
 import pl.ogiba.checky.network.ResponseListener
 import pl.ogiba.checky.network.TableService
 import pl.ogiba.checky.network.TableType
+import pl.ogiba.checky.viewitems.RateViewItem
 
 class MainPresenter : IMainPresenter {
 
@@ -30,5 +32,21 @@ class MainPresenter : IMainPresenter {
                 print(rawError)
             }
         })
+    }
+
+    override fun convertToViewItems(dailyRates: ArrayList<DailyRate>?) {
+        if (dailyRates == null) {
+            return
+        }
+
+        val viewItems = ArrayList<RateViewItem>()
+        for (dailyRate in dailyRates) {
+            val items = dailyRate.rates.map {
+                return@map RateViewItem(it.code ?: "")
+            }
+            viewItems.addAll(items)
+        }
+
+        mainView?.onViewItemsPrepared(viewItems)
     }
 }

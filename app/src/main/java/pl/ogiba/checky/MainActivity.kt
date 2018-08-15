@@ -5,15 +5,18 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
-import android.support.v7.util.DiffUtil
+import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
+import pl.ogiba.checky.adapter.DailyRatesAdapter
 import pl.ogiba.checky.model.DailyRate
+import pl.ogiba.checky.viewitems.RateViewItem
 import pl.ogiba.checky.viewmodels.HomeViewModel
 
 class MainActivity : FragmentActivity(), IMainView {
 
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var presenter: IMainPresenter
+    private val adapter = DailyRatesAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,12 +24,20 @@ class MainActivity : FragmentActivity(), IMainView {
 
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
+        setupRecyclerView()
+
         btnTest.setOnClickListener {
             presenter.loadData()
         }
 
         homeViewModel.dailyRates.observe(this, Observer {
+            presenter.convertToViewItems(it)
+        })
 
+        homeViewModel.rateViewItems.observe(this, Observer {
+            if (it != null) {
+                adapter.addItems(it)
+            }
         })
 
         homeViewModel.testValue.observe(this, Observer {
@@ -47,6 +58,18 @@ class MainActivity : FragmentActivity(), IMainView {
     }
 
     override fun onDailyRateLoaded(dailyRate: DailyRate?) {
-        homeViewModel.testValue.value = dailyRate?.effectiveDate
+        if (dailyRate != null) {
+            homeViewModel.testValue.value = dailyRate.effectiveDate
+            homeViewModel.dailyRates.value?.add(dailyRate)
+        }
+    }
+
+    override fun onViewItemsPrepared(viewItems: ArrayList<RateViewItem>) {
+        homeViewModel.rateViewItems.value = viewItems
+    }
+
+    private fun setupRecyclerView() {
+        rvDailyRates.layoutManager = LinearLayoutManager(this)
+        rvDailyRates.adapter = adapter
     }
 }

@@ -1,15 +1,20 @@
 package pl.ogiba.checky.adapter
 
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.ViewGroup
+import pl.ogiba.checky.R
+import pl.ogiba.checky.utils.DailyRateDiffCallback
+import pl.ogiba.checky.viewitems.RateViewItem
 
 class DailyRatesAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val items: ArrayList<Any> = ArrayList()
-
+    val items: ArrayList<RateViewItem> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val layout = LayoutInflater.from(parent.context).inflate(R.layout.rv_rate_item, parent, false)
+        return RateItemViewHolder(layout)
     }
 
     override fun getItemCount(): Int {
@@ -17,6 +22,13 @@ class DailyRatesAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (holder is RateItemViewHolder) {
+            holder.labeView.text = items[position].label
+        }
+    }
+
+    public fun addItems(items: ArrayList<RateViewItem>) {
+        val diffResult = DiffUtil.calculateDiff(DailyRateDiffCallback(this.items, items))
+        diffResult.dispatchUpdatesTo(this)
     }
 }
