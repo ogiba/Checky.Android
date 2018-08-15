@@ -5,6 +5,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import android.support.v7.util.DiffUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import pl.ogiba.checky.model.DailyRate
 import pl.ogiba.checky.viewmodels.HomeViewModel
@@ -21,7 +22,6 @@ class MainActivity : FragmentActivity(), IMainView {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
         btnTest.setOnClickListener {
-//            homeViewModel.testValue.value = "${homeViewModel.counter++}"
             presenter.loadData()
         }
 
